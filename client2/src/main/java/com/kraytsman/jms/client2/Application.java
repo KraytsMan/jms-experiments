@@ -1,17 +1,15 @@
-package com.kraytsman.spring.activemq;
+package com.kraytsman.jms.client2;
 
 import com.kraytsman.common.InputTextListener;
 import com.kraytsman.common.JMSObserver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
 import javax.jms.ConnectionFactory;
@@ -24,26 +22,24 @@ public class Application {
     static JMSObserver jmsObserver;
 
     @Bean
-    public JmsListenerContainerFactory<?> messageFactory(ConnectionFactory connectionFactory,
-                                                  DefaultJmsListenerContainerFactoryConfigurer configurer){
+    public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(ConnectionFactory connectionFactory) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        configurer.configure(factory, connectionFactory);
+        factory.setConnectionFactory(connectionFactory);
+        factory.setConcurrency("3-10");
         return factory;
     }
 
-    @Bean
-    public MappingJackson2MessageConverter messageConverter(){
+    @Bean // Serialize message content to json using TextMessage
+    public MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setTargetType(MessageType.TEXT);
-        converter.setTypeIdPropertyName("_type");
         return converter;
     }
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
-        JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
+        JmsTemplate service = SpringApplication.run(Application.class, args).getBean(JmsTemplate.class);
         textListener = new InputTextListener();
-        jmsObserver = new JMSObserver(textListener, jmsTemplate, "messageBox", "consumer");
+        jmsObserver = new JMSObserver(textListener, service, "client2ToClient1", "client1");
         textListener.add(jmsObserver);
         textListener.start();
     }

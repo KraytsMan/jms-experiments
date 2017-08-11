@@ -1,14 +1,14 @@
-package com.kraytsman.spring.activemq;
+package com.kraytsman.jms.client2;
 
-import com.kraytsman.common.Message;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Receiver {
 
-    @JmsListener(destination = "messageBox", containerFactory = "messageFactory")
-    public void receiveMessage(Message message) {
+    @JmsListener(destination = "client1ToClient2")
+    public void receiveMessage(String message) {
         System.out.println("Received message: " + message);
     }
+
 }

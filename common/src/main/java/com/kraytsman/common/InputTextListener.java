@@ -1,4 +1,4 @@
-package com.kraytsman.spring.activemq;
+package com.kraytsman.common;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,12 +11,12 @@ public class InputTextListener implements Runnable, MyObservable {
     Scanner scanner = new Scanner(System.in);
     String message;
 
-    InputTextListener() {
+    public InputTextListener() {
         observers = new LinkedList<MyObserver>();
         System.out.println("Type message to send. Type \"exit\" to close program.");
     }
 
-    void start() {
+    public void start() {
         if (thread == null) {
             thread = new Thread(this);
             thread.start();

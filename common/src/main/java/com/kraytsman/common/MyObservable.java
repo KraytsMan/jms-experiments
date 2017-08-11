@@ -1,4 +1,4 @@
-package com.kraytsman.spring.activemq;
+package com.kraytsman.common;
 
 public interface MyObservable {
 
